@@ -51,7 +51,7 @@ def main():
     try:
         if (len(sys.argv) < 2):
             print('./steamgifts.py <Cookie> [<SteamGifts Page Number (default=1)>]')
-            print('Please insert your cookie (CTRL+SHIFT+J on the website and type document.cookie. Then paste the whole string as an argument).')
+            print('Please insert your cookie. Press CTRL+SHIFT+J on the website (CTRL+SHIFT+K on Firefox) and type document.cookie. Then paste the whole string as an argument.')
             return
         regex = re.compile(MAIN_REGEX)
         xsrfRegex = re.compile(XSRF_REGEX)
