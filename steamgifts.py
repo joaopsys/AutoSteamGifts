@@ -41,6 +41,12 @@ def getWebPage(url, headers, cookies, postData=None):
         print("Error processing webpage: "+str(e))
         return None
 
+## https://stackoverflow.com/questions/480214/how-do-you-remove-duplicates-from-a-list-in-python-whilst-preserving-order
+def nodup(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
 def main():
     try:
         if (len(sys.argv) < 2):
@@ -55,16 +61,20 @@ def main():
         else:
             homePage = getWebPage(PAGING_URL+'1', GLOBAL_HEADERS, sys.argv[1])
 
-        xsrfToken = xsrfRegex.findall(str(homePage))[0]
-        gamesList = (list(set(regex.findall(str(homePage)))))
+        if (homePage is None):
+            print('An error occurred while fetching results (probably expired cookie?). Terminating...')
+            return
 
+        xsrfToken = xsrfRegex.findall(str(homePage))[0]
+        gamesList = regex.findall(str(homePage))
+        gamesList = nodup(gamesList)
         print(gamesList)
         for g in gamesList:
             postData = {'xsrf_token':xsrfToken, 'do':'entry_insert', 'code':g}
             print(getWebPage(MAIN_URL+'/ajax.php',GLOBAL_HEADERS,sys.argv[1],postData))
 
     except KeyboardInterrupt:
-        print("Fatal Error.")
+        print("Interrupted.")
 
 if __name__ == '__main__':
     main()
