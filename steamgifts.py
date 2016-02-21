@@ -53,12 +53,18 @@ def nodup(seq):
     return [x for x in seq if not (x in seen or seen_add(x))]
 
 def saveCookie(cookie):
+    ## https://stackoverflow.com/questions/25432139/python-cross-platform-hidden-file
+    ## Just Windows things
+    if os.name == 'nt':
+        ret = ctypes.windll.kernel32.SetFileAttributesW(COOKIE_FILE_NAME, 0)
+        if not ret:
+            raise ctypes.WinError()
+            
     with open(COOKIE_FILE_NAME, 'w') as f:
         f.write(cookie)
 
-## https://stackoverflow.com/questions/25432139/python-cross-platform-hidden-file
     if os.name == 'nt':
-        ret = ctypes.windll.kernel32.SetFileAttributesW(COOKIE_FILE_NAME, "0x02")
+        ret = ctypes.windll.kernel32.SetFileAttributesW(COOKIE_FILE_NAME, 2)
         if not ret:
             raise ctypes.WinError()
 
