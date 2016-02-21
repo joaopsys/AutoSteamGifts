@@ -14,6 +14,8 @@ USER_AGENT = 'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML,
 GLOBAL_HEADERS = {'User-Agent': USER_AGENT, 'Accept': 'application/json, text/javascript, */*; q=0.01', 'Accept-encoding': 'gzip, deflate', 'Connection': 'keep-alive', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 MAIN_REGEX = 'href="\/giveaway\/(?P<Code>[a-zA-Z0-9]*?)\/[^\/]*?"'
 XSRF_REGEX = 'name="xsrf_token" value="(?P<XSRF>[0-9a-zA-Z]*?)"'
+POINTS_REGEX = "<span class=\"nav__points\">(?P<Points>[0-9]+)</span>"
+POINTS_RESPONSE_REGEX = "\"points\":\"(?P<Points>[0-9]+)\""
 
 def getWebPage(url, headers, cookies, postData=None):
     try:
@@ -55,23 +57,33 @@ def main():
             return
         regex = re.compile(MAIN_REGEX)
         xsrfRegex = re.compile(XSRF_REGEX)
+        pointsRegex = re.compile(POINTS_REGEX)
+        pointsResponseRegex = re.compile(POINTS_RESPONSE_REGEX)
 
         if (len(sys.argv) > 2):
-            homePage = getWebPage(PAGING_URL+sys.argv[2], GLOBAL_HEADERS, sys.argv[1])
+            startingPage = sys.argv[2]
         else:
-            homePage = getWebPage(PAGING_URL+'1', GLOBAL_HEADERS, sys.argv[1])
+            startingPage = 1
 
-        if (homePage is None):
-            print('An error occurred while fetching results (probably expired cookie?). Terminating...')
-            return
-
-        xsrfToken = xsrfRegex.findall(str(homePage))[0]
-        gamesList = regex.findall(str(homePage))
-        gamesList = nodup(gamesList)
-        print(gamesList)
-        for g in gamesList:
-            postData = {'xsrf_token':xsrfToken, 'do':'entry_insert', 'code':g}
-            print(getWebPage(MAIN_URL+'/ajax.php',GLOBAL_HEADERS,sys.argv[1],postData))
+        while True:
+            homePage = getWebPage(PAGING_URL+str(startingPage), GLOBAL_HEADERS, sys.argv[1])
+            if (homePage is None):
+                print('An error occurred while fetching results (probably expired cookie?). Terminating...')
+                return
+            xsrfToken = xsrfRegex.findall(str(homePage))[0]
+            points = pointsRegex.findall(str(homePage))[0]
+            gamesList = regex.findall(str(homePage))
+            gamesList = nodup(gamesList)
+            print(gamesList)
+            for g in gamesList:
+                if (int(points) <= 0):
+                    print('You have 0 points, exiting...')
+                    return
+                postData = {'xsrf_token':xsrfToken, 'do':'entry_insert', 'code':g}
+                postResponse = getWebPage(MAIN_URL+'/ajax.php',GLOBAL_HEADERS,sys.argv[1],postData)
+                points = pointsResponseRegex.findall(str(postResponse))[0]
+                print(postResponse)
+            startingPage = int(startingPage)+1
 
     except KeyboardInterrupt:
         print("Interrupted.")
