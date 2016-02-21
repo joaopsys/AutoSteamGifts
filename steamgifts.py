@@ -57,16 +57,12 @@ def saveCookie(cookie):
     ## Just Windows things
     if os.name == 'nt':
         ret = ctypes.windll.kernel32.SetFileAttributesW(COOKIE_FILE_NAME, 0)
-        if not ret:
-            raise ctypes.WinError()
             
     with open(COOKIE_FILE_NAME, 'w') as f:
         f.write(cookie)
 
     if os.name == 'nt':
         ret = ctypes.windll.kernel32.SetFileAttributesW(COOKIE_FILE_NAME, 2)
-        if not ret:
-            raise ctypes.WinError()
 
 def getCookieFromfile():
     try:
