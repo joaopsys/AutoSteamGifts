@@ -10,8 +10,8 @@ import re
 import os
 import ctypes
 
-MAIN_URL = 'http://www.steamgifts.com'
-PAGING_URL = 'http://www.steamgifts.com/giveaways/search?page='
+MAIN_URL = 'https://www.steamgifts.com'
+PAGING_URL = 'https://www.steamgifts.com/giveaways/search?page='
 USER_AGENT = 'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36'
 GLOBAL_HEADERS = {'User-Agent': USER_AGENT, 'Accept': 'application/json, text/javascript, */*; q=0.01', 'Accept-encoding': 'gzip, deflate', 'Connection': 'keep-alive', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 MAIN_REGEX = 'href="\/giveaway\/(?P<Code>[a-zA-Z0-9]*?)\/[^\/]*?"'
